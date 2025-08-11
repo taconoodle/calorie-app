@@ -4,35 +4,35 @@ import java.util.ArrayList;
 
 public class Recipe extends Food {
     //List containing a dynamic amount of food
-    private ArrayList<Food> ingredients;
+    private ArrayList<RecipeIngredient> ingredients;
 
-    private float calories;
-    private float proteins;
-    private float carbs;
+    private double calories;
+    private double proteins;
+    private double carbs;
 
-    public Recipe(int id, String brand, String brandModel, float calories, float proteins, float carbs) {
-        super(id, brand, brandModel, calories, proteins, carbs);
+    public Recipe(int id, String brand, String description) {
+        super(id, brand, description, 0, 0, 0);
 
-        this.ingredients = new ArrayList<Food>();
+        this.ingredients = new ArrayList<RecipeIngredient>();
     }
 
-    public ArrayList<Food> getIngredients() {
+    public ArrayList<RecipeIngredient> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(ArrayList<Food> ingredients) {
+    public void setIngredients(ArrayList<RecipeIngredient> ingredients) {
         this.ingredients = ingredients;
     }
 
-    public void addIngredient(Food ingredient){
+    public void addIngredient(RecipeIngredient ingredient){
         this.ingredients.add(ingredient);
 
-        this.calories += ingredient.getCalories();
-        this.proteins += ingredient.getProteins();
-        this.carbs += ingredient.getCarbs();
+        this.calories += ingredient.getFood().getCalories();
+        this.proteins += ingredient.getFood().getProteins();
+        this.carbs += ingredient.getFood().getCarbs();
     }
 
-    public void removeIngredient(Food ingredient) {
+    public void removeIngredient(RecipeIngredient ingredient) {
         ingredients.remove(ingredient);
     }
 }

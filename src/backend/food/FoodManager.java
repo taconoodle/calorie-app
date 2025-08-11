@@ -14,8 +14,8 @@ public class FoodManager {
         this.conn = conn;
     }
 
-    private Food rowToFood(ResultSet extractionResultSet) throws SQLException {
-        return new Food(
+    public static Food rowToFood(ResultSet extractionResultSet) throws SQLException {
+        return new Food (
                 extractionResultSet.getInt("id"),
                 extractionResultSet.getString("brand"),
                 extractionResultSet.getString("brand_model"),
@@ -32,7 +32,7 @@ public class FoodManager {
             String sql = "INSERT INTO Food (id, brand, brand_model, calories, protein, carbs) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
             statement = conn.prepareStatement(sql);
-            statement.setInt(1, newFood.getFoodId());
+            statement.setInt(1, newFood.getId());
             statement.setString(2, newFood.getBrand());
             statement.setString(3, newFood.getBrandModel());
             statement.setDouble(4, newFood.getCalories());
@@ -41,7 +41,7 @@ public class FoodManager {
             statement.executeUpdate();
             return true;
         }
-        catch(SQLException e) {
+        catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
             throw e;
         }
@@ -64,8 +64,6 @@ public class FoodManager {
             if (rs.next()) {
                 return rowToFood(rs);
             }
-            //There might not exist a food with the given ID
-            System.out.println("Food with ID: " + id + " was not found.\n");
             return null;
         }
         catch(SQLException e) {
@@ -89,7 +87,7 @@ public class FoodManager {
             statement.executeUpdate();
             return true;
         }
-        catch(SQLException e) {
+        catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
             throw e;
         }

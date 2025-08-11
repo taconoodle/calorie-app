@@ -1,7 +1,7 @@
 package backend.food;
 
 public class Food {
-    private int foodId;
+    private int id;
 
     private String brand;
     private String brandModel;
@@ -14,15 +14,15 @@ public class Food {
         this.brand = brand;
         this.brandModel = brandModel;
 
-        this.foodId = id;
+        this.id = id;
 
         this.calories = calories;
         this.proteins = proteins;
         this.carbs = carbs;
     }
 
-    public int getFoodId() {
-        return foodId;
+    public int getId() {
+        return id;
     }
 
     public String getBrandModel() {
@@ -68,7 +68,7 @@ public class Food {
     @Override
     public String toString() {
         return String.format("%d | %s | %s | %.2f | %.2f | %.2f",
-                this.getFoodId(),
+                this.getId(),
                 this.getBrand(),
                 this.getBrandModel(),
                 this.getCalories(),
