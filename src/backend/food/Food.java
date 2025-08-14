@@ -45,7 +45,7 @@ public class Food {
         return this.calories;
     }
 
-    public void setCalories(float calories) {
+    public void setCalories(double calories) {
         this.calories = calories;
     }
 
@@ -53,7 +53,7 @@ public class Food {
         return proteins;
     }
 
-    public void setProteins(float proteins) {
+    public void setProteins(double proteins) {
         this.proteins = proteins;
     }
 
@@ -61,7 +61,7 @@ public class Food {
         return carbs;
     }
 
-    public void setCarbs(float carbs) {
+    public void setCarbs(double carbs) {
         this.carbs = carbs;
     }
 

@@ -1,5 +1,7 @@
 package backend.food;
 
+import static backend.food.RecipeManager.QUANTITY_BASE;
+
 public class RecipeIngredient {
     private Food food;
     private double quantity;
@@ -23,5 +25,17 @@ public class RecipeIngredient {
 
     public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    public double getCalories() {
+        return this.food.getCalories() * this.quantity / QUANTITY_BASE;
+    }
+
+    public double getProteins() {
+        return this.food.getProteins() * this.quantity / QUANTITY_BASE;
+    }
+
+    public double getCarbs() {
+        return this.food.getCarbs() * this.quantity / QUANTITY_BASE;
     }
 }
