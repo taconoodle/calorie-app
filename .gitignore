@@ -32,3 +32,4 @@ bin/
 db-backup.sql
 postgresql-42.7.7.jar
 /config/auth_file.txt
+/docs/

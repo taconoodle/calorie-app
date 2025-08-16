@@ -6,27 +6,29 @@ import java.util.ArrayList;
 import static backend.food.FoodManager.rowToFood;
 
 /**
- * The RecipeManager class manages the Recipes both in the backend and in the database while acting as a bridge among them
+ * The RecipeManager class manages the recipes and the ingredients both in the backend and in the database while acting as a bridge among them
+ *
  * @author taconoodle
  */
 public class RecipeManager {
 
     /**
      * A database connection
-     * The RecipeManager instance will this connection as its main database connection for its methods
+     * The RecipeManager instance will use this connection as its main database connection for its methods
      */
     Connection conn;
 
     /**
      * Used as the gram basis in the quantities of the ingredients
      * e.g. A recipe needs 120 grams of ingredient A.
-     *     Ingredients' cals, prots and carbs are by default expressed for QUANTITY_BASE grams of the ingredient
-     *     To find the calories the recipe gains from A, we have to multiply A's calories with the quantity and then divide it by the QUANTITY_BASE
+     * Ingredients' cals, prots and carbs are by default expressed for QUANTITY_BASE grams of the ingredient
+     * To find the calories the recipe gains from A, we have to multiply A's calories with the quantity and then divide it by the QUANTITY_BASE
      */
     protected static final double QUANTITY_BASE = 100;
 
     /**
      * Default constructor
+     *
      * @param conn the main database connection
      */
     public RecipeManager(Connection conn) {
@@ -35,14 +37,15 @@ public class RecipeManager {
 
     /**
      * Converts a database row to a Recipe object
-     * @param recipeResultSet a result set, the row of which contains the data needed
+     *
+     * @param recipeResultSet   a result set, the row of which contains the data needed
      * @param recipeIngredients an ArrayList containing the ingredients that will be moved to the Recipe
      * @return the created Recipe object
      * @throws SQLException if a database error is encountered
      */
     private Recipe rowToRecipe(ResultSet recipeResultSet, ArrayList<RecipeIngredient> recipeIngredients) throws SQLException {
         //Create a new recipe object with the data from the result set
-        Recipe recipe = new Recipe (
+        Recipe recipe = new Recipe(
                 recipeResultSet.getInt("id"),
                 recipeResultSet.getString("name"),
                 recipeResultSet.getString("description")
@@ -57,6 +60,7 @@ public class RecipeManager {
 
     /**
      * Queries the database for the requested recipe
+     *
      * @param recipeId the ID of the requested recipe
      * @return the requested Recipe object
      * @throws SQLException if a database error is encountered
@@ -76,13 +80,11 @@ public class RecipeManager {
                 return rowToRecipe(rs, getIngredients(recipeId));
             }
             return null;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             //Report the error and then throw it above
             System.err.println("SQL Database error: " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return null;
+        } finally {
             //Close the statement to avoid leakages
             statement.close();
         }
@@ -90,6 +92,7 @@ public class RecipeManager {
 
     /**
      * Insert a new recipe in the database
+     *
      * @param newRecipe the recipe to insert
      * @return true if successful
      * @throws SQLException if a database error is encountered
@@ -99,17 +102,17 @@ public class RecipeManager {
         try {
             //Add the data that belong to the Recipe table in the database
             String sql = "INSERT INTO Recipe (id, name, description) " +
-                         "VALUES (?, ?, ?)";
+                    "VALUES (?, ?, ?)";
             statement = conn.prepareStatement(sql);
             statement.setInt(1, newRecipe.getId());
             statement.setString(2, newRecipe.getBrand());
-            statement.setString(3, newRecipe.getBrandModel());
+            statement.setString(3, newRecipe.getDescription());
             statement.executeUpdate();
 
             //Add the ingredients of the recipe in database
             ArrayList<RecipeIngredient> ingredients = newRecipe.getIngredients();
 
-            while(!ingredients.isEmpty()) {
+            while (!ingredients.isEmpty()) {
                 RecipeIngredient ingredientToAdd = ingredients.removeFirst();
                 addIngredient(
                         newRecipe.getId(),
@@ -118,12 +121,10 @@ public class RecipeManager {
                 );
             }
             return true;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("SQL Database error " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return false;
+        } finally {
             //Close the statement to avoid leaks
             statement.close();
         }
@@ -131,6 +132,7 @@ public class RecipeManager {
 
     /**
      * Deletes a recipe from the database
+     *
      * @param recipeId the ID of the recipe to delete
      * @return true if successful
      * @throws SQLException if a database error is encountered
@@ -140,19 +142,17 @@ public class RecipeManager {
         try {
             //Delete the recipe's entry from Recipes table (the database automatically deletes the ingredients)
             String sql = "DELETE FROM Recipe " +
-                         "WHERE id = ?";
+                    "WHERE id = ?";
 
             statement = conn.prepareStatement(sql);
             statement.setInt(1, recipeId);
             statement.executeUpdate();
 
             return true;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return false;
+        } finally {
             //Close the statement to avoid leakages
             statement.close();
         }
@@ -161,6 +161,7 @@ public class RecipeManager {
     /**
      * Calculates the calories of a recipe
      * Internally, gets all of its ingredients to calculate the total calories
+     *
      * @param recipeId the ID of the recipe of which the calories we want
      * @return the amount of calories
      * @throws SQLException if a database error is encountered
@@ -178,6 +179,7 @@ public class RecipeManager {
     /**
      * Calculates the proteins of a recipe
      * Internally, gets all of its ingredients to calculate the total proteins
+     *
      * @param recipeId the ID of the recipe of which the proteins we want
      * @return the amount of proteins
      * @throws SQLException if a database error is encountered
@@ -195,6 +197,7 @@ public class RecipeManager {
     /**
      * Calculates the carbs of a recipe
      * Internally, gets all of its ingredients to calculate the total carbs
+     *
      * @param recipeId the ID of the recipe of which the carbs we want
      * @return the amount of proteins
      * @throws SQLException if a database error is encountered
@@ -211,6 +214,7 @@ public class RecipeManager {
 
     /**
      * Queries the database for the ingredients of a recipe
+     *
      * @param recipeId the ID of the recipe, of which its ingredients we need
      * @return an ArrayList containing the ingredients
      * @throws SQLException if a database error is encountered
@@ -219,10 +223,10 @@ public class RecipeManager {
         PreparedStatement statement = null;
         try {
             //Pull the ingredients from the database
-            String sql = "SELECT f.id, f.brand, f.brand_model, f.calories, f.protein, f.carbs, ing.quantity " +
-                         "FROM Ingredients ing " +
-                         "JOIN Food f ON f.id = ing.food_id " +
-                         "WHERE ing.recipe_id = ?";
+            String sql = "SELECT f.id, f.brand, f.description, f.calories, f.protein, f.carbs, ing.quantity " +
+                    "FROM Ingredients ing " +
+                    "JOIN Food f ON f.id = ing.food_id " +
+                    "WHERE ing.recipe_id = ?";
 
             statement = conn.prepareStatement(sql);
             statement.setInt(1, recipeId);
@@ -235,12 +239,10 @@ public class RecipeManager {
             }
             return ingredients;
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return null;
+        } finally {
             //Close the statement to avoid leakages
             statement.close();
         }
@@ -249,8 +251,9 @@ public class RecipeManager {
     /**
      * Insert a new ingredient in a recipe in the database
      * This creates a new entry in the Ingredients table
+     *
      * @param recipeId the ID of the recipe that gets the ingredient
-     * @param foodId the ID of the ingredient
+     * @param foodId   the ID of the ingredient
      * @param quantity the amount of grams of the ingredient the recipe needs
      * @return true if successful
      * @throws SQLException if a database error is encountered
@@ -260,7 +263,7 @@ public class RecipeManager {
         try {
             //Add the ingredient in the database
             String sql = "INSERT INTO Ingredients (recipe_id, food_id, quantity) " +
-                         "VALUES (?, ?, ?)";
+                    "VALUES (?, ?, ?)";
             statement = conn.prepareStatement(sql);
             statement.setInt(1, recipeId);
             statement.setInt(2, foodId);
@@ -268,12 +271,10 @@ public class RecipeManager {
 
             statement.executeUpdate();
             return true;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return false;
+        } finally {
             //Close the statement to avoid leaks
             statement.close();
         }
@@ -281,8 +282,9 @@ public class RecipeManager {
 
     /**
      * Removes an ingredient from a recipe
+     *
      * @param recipeId the ID of the recipe the ingredient belongs to
-     * @param foodId the ID of the ingredient
+     * @param foodId   the ID of the ingredient
      * @return true if successful
      * @throws SQLException if a database error is encountered
      */
@@ -297,12 +299,10 @@ public class RecipeManager {
 
             statement.executeUpdate();
             return true;
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("SQL Database error: " + e.getMessage());
-            throw e;
-        }
-        finally {
+            return false;
+        } finally {
             //Close the statement to avoid leaks
             statement.close();
         }
